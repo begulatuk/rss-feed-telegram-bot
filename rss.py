@@ -1,4 +1,5 @@
 import os
+import logging
 import feedparser
 from sql import db
 from time import sleep, time
@@ -6,6 +7,7 @@ from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from apscheduler.schedulers.background import BackgroundScheduler
 
+LOGGING = logging.getLogger(__name__)
 
 api_id = ""   # Get it from my.telegram.org
 api_hash = ""   # Get it from my.telegram.org
@@ -31,9 +33,12 @@ app = Client(":memory:", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 def check_feed():
     FEED = feedparser.parse(feed_url)
     entry = FEED.entries[0]
-    if entry.id != db.get_link(feed_url).link:
+    
+    LOGGING.info(FEED)
+    LOGGING.info(entry)
+    if entry != db.get_link(feed_url).link:
                    # ↓ Edit this message as your needs.
-      message = f"**{entry.title}**\n```{entry.link}```"
+      message = f"**/leech```{entry.link}```"
       try:
         app.send_message(log_channel, message)
         db.update_link(feed_url, entry.id)
